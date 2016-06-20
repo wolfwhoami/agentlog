@@ -1,6 +1,6 @@
 import os
 import time
-#import syslog
+import syslog
 import ConfigParser
 import threading
 import re
@@ -31,8 +31,8 @@ class read_conf(object):
 def mylog(name,facility,msg):
     mylock.acquire()
     msg=msg.strip()
-    syslog.open(name,syslog.PID,facility)
-    syslog.syslog(msg)
+    syslog.openlog(name,syslog.LOG_PID,facility)
+    syslog.syslog(msg.encode('utf8'))
     print name,facility,msg
     mylock.release()
     
@@ -56,7 +56,7 @@ def threadfunc(key,args):
         else:
             lines=myfilter.myfilter(lines)
         if lines:
-            [mylog(args['name'],args['facility'],line) for line in lines]
+            [mylog(args['name'],fmap[args['facility']],line) for line in lines]
         time.sleep(opdict['system']['sleep'])
             
 def doit():
