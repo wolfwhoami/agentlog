@@ -1,9 +1,16 @@
 import os
 import time
-import syslog
 import ConfigParser
 import threading
 import re
+import platform
+import sys
+
+if platform.system()!='Windows':
+    ostype=1
+    import syslog
+else:
+    ostype=0
 
 fmap={'local1':136,'local2':144,'local3':152,'local4':160,'local5':168,'local6':176}
 data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
@@ -31,9 +38,11 @@ class read_conf(object):
 def mylog(name,facility,msg):
     mylock.acquire()
     msg=msg.strip()
-    syslog.openlog(name,syslog.LOG_PID,facility)
-    syslog.syslog(msg.encode('utf8'))
-    #print name,facility,msg
+    if ostype:
+        syslog.openlog(name,syslog.LOG_PID,facility)
+        syslog.syslog(msg.encode('utf8'))
+    if len(sys.argv)>1 and sys.argv[1]=='print':    
+        print name,facility,msg
     mylock.release()
     
 def getreallog(source):
@@ -44,7 +53,8 @@ def threadfunc(key,args):
     args['source']=getreallog(args['source'])
     if os.path.isfile(args['source']):
         f = open(args['source'])
-        f.seek(0,2)
+        if len(sys.argv)==1:
+            f.seek(0,2)
     else:
         print "%s is not exist" %args['source']
         return
@@ -52,7 +62,7 @@ def threadfunc(key,args):
     while True:
         lines = f.readlines()
         if args.get('regex'):
-            lines=myfilter.myfilter(lines,args['regex'])
+            lines=myfilter.myfilter(lines,args)
         else:
             lines=myfilter.myfilter(lines)
         if lines:
