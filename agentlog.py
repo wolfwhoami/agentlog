@@ -33,7 +33,7 @@ def mylog(name,facility,msg):
     msg=msg.strip()
     syslog.openlog(name,syslog.LOG_PID,facility)
     syslog.syslog(msg.encode('utf8'))
-    print name,facility,msg
+    #print name,facility,msg
     mylock.release()
     
 def getreallog(source):
