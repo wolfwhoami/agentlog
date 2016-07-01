@@ -15,6 +15,8 @@ else:
 fmap={'local1':136,'local2':144,'local3':152,'local4':160,'local5':168,'local6':176}
 mylock=threading.RLock()
 data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
+state={'run':True}
+
 class read_conf(object):
     def __init__(self, config_file):
         self.config_file = config_file
@@ -48,17 +50,17 @@ def getreallog(source):
     source=source.replace('[data]',data)
     return source
 
-def threadfunc(key,args):
+def threadfunc(key,args,st):
     args['source']=getreallog(args['source'])
     if os.path.isfile(args['source']):
         f = open(args['source'])
-        if len(sys.argv)==1:
+        if len(sys.argv)==1 or (len(sys.argv)>=3 and sys.argv[2]=='active'):
             f.seek(0,2)
     else:
         print "%s is not exist" %args['source']
         return
     myfilter=__import__(args['filter'])
-    while True:
+    while st['run']:
         lines = f.readlines()
         if args.get('regex'):
             lines=myfilter.myfilter(lines,args)
@@ -71,11 +73,11 @@ def threadfunc(key,args):
 def doit():
     for key,value in opdict.items():
         if value.get('filter'):
-            action=threading.Thread(target=threadfunc,args=(key,value))
+            action=threading.Thread(target=threadfunc,args=(key,value,state))
             action.start()
         elif value.get('regex'):
             value['filter']='filter_regex'
-            action=threading.Thread(target=threadfunc,args=(key,value))
+            action=threading.Thread(target=threadfunc,args=(key,value,state))
             action.start()
         
 if __name__ == '__main__':
@@ -87,4 +89,12 @@ if __name__ == '__main__':
             exit(1)
         else:
             time.sleep(60)
-            data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
+            now=time.strftime('%Y-%m-%d',time.localtime(time.time()))
+            if data!=now:
+                data=now
+                state['run']=False
+                time.sleep(opdict['system']['sleep']*2)
+                state['run']=True
+                doit()
+                
+            
