@@ -13,7 +13,6 @@ else:
     ostype=0
 
 fmap={'local1':136,'local2':144,'local3':152,'local4':160,'local5':168,'local6':176}
-data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
 mylock=threading.RLock()
 
 class read_conf(object):
@@ -87,4 +86,5 @@ if __name__ == '__main__':
         if len(threading.enumerate())== 1:
             exit(1)
         else:
-            time.sleep(5)    
+            time.sleep(60)
+            data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
