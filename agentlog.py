@@ -14,7 +14,7 @@ else:
 
 fmap={'local1':136,'local2':144,'local3':152,'local4':160,'local5':168,'local6':176}
 mylock=threading.RLock()
-
+data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
 class read_conf(object):
     def __init__(self, config_file):
         self.config_file = config_file
