@@ -25,7 +25,8 @@ def isdebug():
 
 def debugprint(dinfo):
     if isdebug():
-        print "DEBUG:",dinfo
+        logfile.write("DEBUG: "+str(dinfo)+'\n')
+        logfile.flush()
 
 class read_conf(object):
     def __init__(self, config_file):
@@ -95,6 +96,7 @@ def doit():
 if __name__ == '__main__':
     opdict=read_conf('agentlog.conf').get_conf_dict()
     opdict['system']['sleep']=int(opdict['system']['sleep'])
+    logfile=open(opdict['system']['log'],'w')
     doit()
     debugprint(opdict)
     debugprint("Now: %s" %data)
