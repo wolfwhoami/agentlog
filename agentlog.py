@@ -19,7 +19,7 @@ state={'run':True}
 
 
 def isdebug():
-    len(sys.argv)>1 and sys.argv[1]=='debug':
+    if len(sys.argv)>1 and sys.argv[1]=='debug':
         return True
     return False
 
