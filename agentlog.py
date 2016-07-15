@@ -17,6 +17,16 @@ mylock=threading.RLock()
 data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
 state={'run':True}
 
+
+def isdebug():
+    len(sys.argv)>1 and sys.argv[1]=='debug':
+        return True
+    return False
+
+def debugprint(dinfo):
+    if isdebug():
+        print "DEBUG:",dinfo
+
 class read_conf(object):
     def __init__(self, config_file):
         self.config_file = config_file
@@ -42,7 +52,7 @@ def mylog(name,facility,msg):
     if ostype:
         syslog.openlog(name,syslog.LOG_PID,facility)
         syslog.syslog(msg.encode('utf8'))
-    if len(sys.argv)>1 and sys.argv[1]=='print':    
+    if len(sys.argv)>1 and sys.argv[1]=='print':
         print name,facility,msg
     mylock.release()
     
@@ -59,6 +69,7 @@ def threadfunc(key,args,st):
     else:
         print "%s is not exist" %args['source']
         return
+    debugprint("open: "+args['source'])
     myfilter=__import__(args['filter'])
     while st['run']:
         lines = f.readlines()
@@ -69,6 +80,7 @@ def threadfunc(key,args,st):
         if lines:
             [mylog(args['name'],fmap[args['facility']],line) for line in lines]
         time.sleep(opdict['system']['sleep'])
+    debugprint("close: "+args['source'])
             
 def doit():
     for key,value in opdict.items():
@@ -84,6 +96,9 @@ if __name__ == '__main__':
     opdict=read_conf('agentlog.conf').get_conf_dict()
     opdict['system']['sleep']=int(opdict['system']['sleep'])
     doit()
+    debugprint(opdict)
+    debugprint("Now: %s" %data)
+    debugprint(threading.enumerate())    
     while 1:
         if len(threading.enumerate())== 1:
             exit(1)
@@ -94,6 +109,8 @@ if __name__ == '__main__':
                 data=now
                 state['run']=False
                 time.sleep(opdict['system']['sleep']*2)
+                debugprint("Now: %s" %data)
+                debugprint(threading.enumerate())
                 state['run']=True
                 doit()
                 
