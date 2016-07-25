@@ -62,15 +62,15 @@ def getreallog(source):
     return source
 
 def threadfunc(key,args,st):
-    args['source']=getreallog(args['source'])
-    if os.path.isfile(args['source']):
-        f = open(args['source'])
+    srcpath=getreallog(args['source'])
+    if os.path.isfile(srcpath):
+        f = open(srcpath)
         if len(sys.argv)==1 or (len(sys.argv)>=3 and sys.argv[2]=='active'):
             f.seek(0,2)
     else:
-        print "%s is not exist" %args['source']
+        print "%s is not exist" %srcpath
         return
-    debugprint("open: "+args['source'])
+    debugprint("open: "+srcpath)
     myfilter=__import__(args['filter'])
     while st['run']:
         lines = f.readlines()
@@ -81,7 +81,7 @@ def threadfunc(key,args,st):
         if lines:
             [mylog(args['name'],fmap[args['facility']],line) for line in lines]
         time.sleep(opdict['system']['sleep'])
-    debugprint("close: "+args['source'])
+    debugprint("close: "+srcpath)
             
 def doit():
     for key,value in opdict.items():
@@ -115,5 +115,6 @@ if __name__ == '__main__':
                 debugprint(threading.enumerate())
                 state['run']=True
                 doit()
+                debugprint(threading.enumerate())
                 
             
