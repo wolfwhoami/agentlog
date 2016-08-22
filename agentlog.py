@@ -12,11 +12,6 @@ if platform.system()!='Windows':
 else:
     ostype=0
 
-fmap={'local1':136,'local2':144,'local3':152,'local4':160,'local5':168,'local6':176}
-mylock=threading.RLock()
-data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
-state={'run':True}
-
 
 def isdebug():
     if len(sys.argv)>1 and sys.argv[1]=='debug':
@@ -26,6 +21,7 @@ def isdebug():
 def debugprint(dinfo):
     if isdebug():
         logfile.write("DEBUG: "+str(dinfo)+'\n')
+        #print "DEBUG: "+str(dinfo)
         logfile.flush()
 
 class read_conf(object):
@@ -84,6 +80,8 @@ def threadfunc(key,args,st):
     debugprint("close: "+srcpath)
             
 def doit():
+    global threads
+    threads=[]
     for key,value in opdict.items():
         if value.get('filter'):
             action=threading.Thread(target=threadfunc,args=(key,value,state))
@@ -92,8 +90,19 @@ def doit():
             value['filter']='filter_regex'
             action=threading.Thread(target=threadfunc,args=(key,value,state))
             action.start()
-        
+        else:
+            continue
+        threads.append(action)
+ 
+def  waitthreads():
+    [t.join() for t in threads]
+     
 if __name__ == '__main__':
+    fmap={'local1':136,'local2':144,'local3':152,'local4':160,'local5':168,'local6':176}
+    mylock=threading.RLock()
+    data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
+    state={'run':True}
+    threads=[]
     opdict=read_conf('agentlog.conf').get_conf_dict()
     opdict['system']['sleep']=int(opdict['system']['sleep'])
     logfile=open(opdict['system']['log'],'w')
@@ -110,9 +119,8 @@ if __name__ == '__main__':
             if data!=now:
                 data=now
                 state['run']=False
-                time.sleep(opdict['system']['sleep']*2)
+                waitthreads()
                 debugprint("Now: %s" %data)
-                debugprint(threading.enumerate())
                 state['run']=True
                 doit()
                 debugprint(threading.enumerate())
