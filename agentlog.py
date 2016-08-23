@@ -80,8 +80,7 @@ def threadfunc(key,args,st):
     debugprint("close: "+srcpath)
             
 def doit():
-    global threads
-    threads=[]
+    threads=list()
     for key,value in opdict.items():
         if value.get('filter'):
             action=threading.Thread(target=threadfunc,args=(key,value,state))
@@ -93,8 +92,10 @@ def doit():
         else:
             continue
         threads.append(action)
+    return threads
+
  
-def  waitthreads():
+def  waitthreads(threads):
     [t.join() for t in threads]
      
 if __name__ == '__main__':
@@ -102,11 +103,10 @@ if __name__ == '__main__':
     mylock=threading.RLock()
     data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
     state={'run':True}
-    threads=[]
     opdict=read_conf('agentlog.conf').get_conf_dict()
     opdict['system']['sleep']=int(opdict['system']['sleep'])
     logfile=open(opdict['system']['log'],'w')
-    doit()
+    rss=doit()
     debugprint(opdict)
     debugprint("Now: %s" %data)
     debugprint(threading.enumerate())    
@@ -119,10 +119,10 @@ if __name__ == '__main__':
             if data!=now:
                 data=now
                 state['run']=False
-                waitthreads()
+                waitthreads(rss)
                 debugprint("Now: %s" %data)
                 state['run']=True
-                doit()
+                rss=doit()
                 debugprint(threading.enumerate())
                 
             
