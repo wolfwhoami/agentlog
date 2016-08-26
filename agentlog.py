@@ -6,6 +6,11 @@ import re
 import platform
 import sys
 
+#########################
+#crontab -e
+#1 0 * * * python agentlog.py  
+#使用linux计划任务实现连续不间断监控
+#########################
 if platform.system()!='Windows':
     ostype=1
     import syslog
@@ -103,11 +108,11 @@ if __name__ == '__main__':
     mylock=threading.RLock()
     data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
     state={'run':True}
-    opdict=read_conf('agentlog.conf').get_conf_dict()
+    opdict=read_conf(sys.path[0]+'/agentlog.conf').get_conf_dict()
     opdict['system']['sleep']=int(opdict['system']['sleep'])
-    logfile=open(opdict['system']['log'],'w')
+    logfile=open(sys.path[0]+'/'+opdict['system']['log'],'a')
     rss=doit()
-    debugprint(opdict)
+    #debugprint(opdict)
     debugprint("Now: %s" %data)
     debugprint(threading.enumerate())    
     while 1:
@@ -117,12 +122,8 @@ if __name__ == '__main__':
             time.sleep(60)
             now=time.strftime('%Y-%m-%d',time.localtime(time.time()))
             if data!=now:
-                data=now
                 state['run']=False
                 waitthreads(rss)
-                debugprint("Now: %s" %data)
-                state['run']=True
-                rss=doit()
-                debugprint(threading.enumerate())
+                debugprint("the process is over")
                 
             
