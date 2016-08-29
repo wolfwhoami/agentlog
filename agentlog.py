@@ -69,7 +69,7 @@ def threadfunc(key,args,st):
         if len(sys.argv)==1 or (len(sys.argv)>=3 and sys.argv[2]=='active'):
             f.seek(0,2)
     else:
-        print "%s is not exist" %srcpath
+        debugprint("%s is not exist" %srcpath)
         return
     debugprint("open: "+srcpath)
     myfilter=__import__(args['filter'])
@@ -111,9 +111,9 @@ if __name__ == '__main__':
     opdict=read_conf(sys.path[0]+'/agentlog.conf').get_conf_dict()
     opdict['system']['sleep']=int(opdict['system']['sleep'])
     logfile=open(sys.path[0]+'/'+opdict['system']['log'],'a')
-    rss=doit()
-    #debugprint(opdict)
+    debugprint(opdict)
     debugprint("Now: %s" %data)
+    rss=doit()
     debugprint(threading.enumerate())    
     while 1:
         if len(threading.enumerate())== 1:
@@ -124,6 +124,6 @@ if __name__ == '__main__':
             if data!=now:
                 state['run']=False
                 waitthreads(rss)
-                debugprint("the process is over")
+                debugprint("==============the process is over===============")
                 
             
