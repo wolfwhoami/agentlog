@@ -1,3 +1,4 @@
+#coding=utf8
 import os
 import time
 import ConfigParser
@@ -9,7 +10,7 @@ import sys
 #########################
 #crontab -e
 #1 0 * * * python agentlog.py  
-#Ê¹ÓÃlinux¼Æ»®ÈÎÎñÊµÏÖÁ¬Ğø²»¼ä¶Ï¼à¿Ø
+#ä½¿ç”¨linuxè®¡åˆ’ä»»åŠ¡å®ç°è¿ç»­ä¸é—´æ–­ç›‘æ§
 #########################
 if platform.system()!='Windows':
     ostype=1
