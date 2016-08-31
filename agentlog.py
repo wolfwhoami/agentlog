@@ -65,6 +65,9 @@ def getreallog(source):
 
 def threadfunc(key,args,st):
     srcpath=getreallog(args['source'])
+    if srcpath.find('/opt/app/')==0:
+        while (not os.path.isfile(srcpath)) and st['run']:
+            time.sleep(60)
     if os.path.isfile(srcpath):
         f = open(srcpath)
         if len(sys.argv)==1 or (len(sys.argv)>=3 and sys.argv[2]=='active'):
