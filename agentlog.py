@@ -113,7 +113,7 @@ if __name__ == '__main__':
     data=time.strftime('%Y-%m-%d',time.localtime(time.time()))
     state={'run':True}
     opdict=read_conf(sys.path[0]+'/agentlog.conf').get_conf_dict()
-    opdict['system']['sleep']=int(opdict['system']['sleep'])
+    opdict['system']['sleep']=float(opdict['system']['sleep'])
     logfile=open(sys.path[0]+'/'+opdict['system']['log'],'a')
     debugprint(opdict)
     debugprint("Now: %s" %data)
